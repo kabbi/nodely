@@ -7,12 +7,34 @@ const logger = require('../logger').child({
 const NodeFactory = require('./NodeFactory');
 const LinkFactory = require('./LinkFactory');
 
+const JsonUtils = require('./utils/Json');
+
 module.exports = class Manager {
   constructor(agent) {
     this.flow = null;
+    this.nodes = {};
+    this.links = {};
     this.agent = agent;
+    this.consul = agent.consul;
     this.nodeFactory = new NodeFactory();
     this.linkFactory = new LinkFactory();
+    this.notifyStatus('waiting');
+  }
+
+  notifyStatus(status, error) {
+    return JsonUtils.pack({
+      status, error
+    }).then(value => (
+      this.consul.kv.set(`${this.agent.agentKey}/flow/status`, value)
+    ));
+  }
+
+  statusNotifier(status) {
+    return error => this.notifyStatus(status, error);
+  }
+
+  forEachPromise(entities, mapper) {
+    return Promise.all(entities.map(nodeData => mapper.call(this, nodeData)));
   }
 
   createFlow(flow) {
@@ -27,48 +49,55 @@ module.exports = class Manager {
       return Promise.reject(new Error('Malformed flow data'));
     }
 
-    return Promise.all(flow.nodes.map(node => (
-      this.createNode(node)
-    ))).then(nodes => {
-      this.nodes = {};
-      for (const node of nodes) {
-        this.nodes[node.id] = node;
-      }
-      return Promise.all(flow.links.map(link => (
-        this.createLink(link)
-      )));
-    }).then(links => {
-      this.links = {};
-      for (const link of links) {
-        this.links[link.id] = link;
-      }
-
+    return this.notifyStatus('creating').then(() => (
+      this.forEachPromise(flow.nodes, this.createNode)
+    )).then(() => (
+      this.forEachPromise(flow.links, this.createLink)
+    )).then(() => {
       logger.info('Finished creating flow');
       this.flow = flow;
-    });
+    }).then(
+      this.statusNotifier('created'),
+      this.statusNotifier('failed')
+    );
   }
 
   destroyFlow() {
     if (!this.flow) {
       return Promise.resolve();
     }
-    // TODO: proper destroy
+
     logger.info('Destroying flow', this.flow.id);
-    this.flow = null;
-    return Promise.resolve();
+    return this.notifyStatus('destroying').then(() => (
+      this.forEachPromise(this.flow.nodes, this.destroyNode)
+    )).then(() => {
+      logger.info('Finished destroying flow');
+      this.flow = null;
+    }).then(
+      this.statusNotifier('destroyed'),
+      this.statusNotifier('failed')
+    );
   }
 
   updateFlow(flow) {
     logger.info('Updating flow', this.flow ? this.flow.id : 'null', '->', flow.id);
-    // TODO: proper reconcilation: update nodes and connections instead of crude re-create
     return this.destroyFlow().then(() => this.createFlow(flow));
   }
 
   createNode(nodeData) {
-    return this.nodeFactory.createNode(nodeData);
+    return this.nodeFactory.createNode(nodeData).then(node => {
+      this.nodes[nodeData.id] = node;
+      return node;
+    });
   }
 
-  createLink(linkData) {
+  destroyNode(nodeData) {
+    return this.nodes[nodeData.id].destroy().then(() => {
+      delete this.nodes[nodeData.id];
+    });
+  }
+
+  findLinkStreams(linkData) {
     const fromNode = this.nodes[linkData.from[0]];
     const fromOutputId = linkData.from[1];
     const toNode = this.nodes[linkData.to[0]];
@@ -79,10 +108,21 @@ module.exports = class Manager {
     if (!toNode || !toNode.getInput(toInputId)) {
       return Promise.reject(new Error('Destination node or input not found'));
     }
-    return this.linkFactory.createLink(
-      fromNode.getOutput(fromOutputId).stream,
-      toNode.getInput(toInputId).stream,
-      linkData
-    );
+    return Promise.resolve({
+      from: fromNode.getOutput(fromOutputId).stream,
+      to: toNode.getInput(toInputId).stream
+    });
+  }
+
+  createLink(linkData) {
+    return this.findLinkStreams(linkData).then(streams => (
+      this.linkFactory.createLink(streams.from, streams.to, linkData)
+    ));
+  }
+
+  destroyLink(linkData) {
+    return this.findLinkStreams(linkData).then(streams => {
+      streams.from.unpipe(streams.to);
+    });
   }
 };

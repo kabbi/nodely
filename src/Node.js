@@ -9,6 +9,10 @@ module.exports = class Node {
     );
   }
 
+  destroy() {
+    return Promise.resolve();
+  }
+
   getDefaultProps() {
     return {};
   }

@@ -19,6 +19,13 @@ module.exports = class TcpServerNode extends Node {
     }).listen(props.port);
   }
 
+  destroy() {
+    this.dataStream.end();
+    this.server.close();
+    // TODO: async!
+    return Promise.resolve();
+  }
+
   getOutputs() {
     return [{
       id: 'data',

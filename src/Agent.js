@@ -14,12 +14,13 @@ const LoggerUtils = require('./utils/Logger');
 module.exports = class Agent {
   constructor() {
     logger.debug('New agent created');
-    this.manager = new Manager();
     this.errorLogger = LoggerUtils.createErrorLogger(logger);
     this.agentKey = `${config.baseKey}/agents/${config.name}`;
     this.consul = consul(Object.assign({}, config.consul, {
       promisify: true
     }));
+
+    this.manager = new Manager(this);
   }
 
   start() {
@@ -86,7 +87,9 @@ module.exports = class Agent {
     if (this.flowsWatch) {
       this.flowsWatch.end();
     }
-    return this.releaseAgentSession().then(() => {
+    return this.manager.destroyFlow().then(() => (
+      this.releaseAgentSession()
+    )).then(() => {
       logger.info('Agent destroyed');
     });
   }

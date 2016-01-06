@@ -26,7 +26,10 @@ switch (config._[0]) {
     agent.start();
     process.once('SIGINT', () => {
       logger.info('Interrupt signal received, attempting to shutdown gracefully');
+      // TODO: exit codes!
       agent.destroy().then(() => {
+        process.exit(0);
+      }, () => {
         process.exit(0);
       });
     });

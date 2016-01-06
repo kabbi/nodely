@@ -15,6 +15,11 @@ module.exports = class TimerNode extends Node {
     });
   }
 
+  destroy() {
+    this.stream.destroy();
+    return Promise.resolve();
+  }
+
   getDefaultProps() {
     return {
       interval: 1000,
