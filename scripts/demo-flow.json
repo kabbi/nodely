@@ -1,0 +1,25 @@
+{
+  "id": "demo-flow",
+  "nodes": [{
+    "id": "node0",
+    "type": "tcp-server@1.0.0",
+    "props": {
+      "port": 20667
+    }
+  }, {
+    "id": "node1",
+    "type": "stdio@1.0.0"
+  }, {
+    "id": "node2",
+    "type": "timer@1.0.0",
+    "props": {
+      "data": "Hello, world!\n"
+    }
+  }],
+  "links": [{
+    "id": "conn0",
+    "from": ["node2", "data"],
+    "to": ["node1", "stdout"],
+    "type": "local"
+  }]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "nodely",
+  "version": "0.0.1",
+  "description": "Distributed node-based processing framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "consul:start": "forever start --minUptime=1000 --spinSleepTime=1000 -c 'consul agent -config-file=scripts/consul.conf.json' . && ./scripts/dev-consul.sh",
+    "consul:stop": "forever stop -c 'consul agent -config-file=scripts/consul.conf.json' .",
+    "agent": "node index.js agent"
+  },
+  "keywords": [
+    "consul",
+    "cluster",
+    "cloud",
+    "distributed",
+    "nodes",
+    "streams"
+  ],
+  "author": "kabbi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kabbi/nodely/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kabbi/nodely.git"
+  },
+  "dependencies": {
+    "bunyan": "^1.5.1",
+    "consul": "^0.22.0",
+    "from2": "^2.1.0",
+    "invert-stream": "0.0.1",
+    "rc": "^1.1.6",
+    "through2": "^2.0.0"
+  },
+  "engines": {
+    "node": ">= 5.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^3.0.0",
+    "forever": "^0.15.1"
+  }
+}
