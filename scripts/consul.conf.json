@@ -1,6 +1,7 @@
 {
   "datacenter": "nodely",
   "data_dir": "./data",
+  "ui_dir": "./scripts/ui",
   "log_level": "INFO",
   "node_name": "dev-nodely-node",
   "server": true,

@@ -30,6 +30,9 @@ npm run agent
 
 # See debug logs with
 tail -f debug.log | ./node_modules/.bin/bunyan -o short
+
+# You can see consul ui and browse key-value storage at:
+# http://localhost:8501/
 ```
 
 ## TODO

@@ -3,15 +3,18 @@
   "nodes": [{
     "id": "node0",
     "type": "tcp-server@1.0.0",
+    "alloc": "alloc0",
     "props": {
       "port": 20667
     }
   }, {
     "id": "node1",
-    "type": "stdio@1.0.0"
+    "type": "stdio@1.0.0",
+    "alloc": "alloc0"
   }, {
     "id": "node2",
     "type": "timer@1.0.0",
+    "alloc": "alloc0",
     "props": {
       "data": "Hello, world!\n"
     }
@@ -21,5 +24,12 @@
     "from": ["node2", "data"],
     "to": ["node1", "stdout"],
     "type": "local"
-  }]
+  }],
+  "allocs": {
+    "alloc0": {
+      "node0": true,
+      "node1": true,
+      "node2": true
+    }
+  }
 }
