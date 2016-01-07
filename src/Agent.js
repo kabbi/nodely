@@ -15,7 +15,7 @@ module.exports = class Agent {
   constructor() {
     logger.debug('New agent created');
     this.errorLogger = LoggerUtils.createErrorLogger(logger);
-    this.agentKey = `${config.baseKey}/agents/${config.name}`;
+    this.flowPath = `${config.baseKey}/flows/${config.flowId}`;
     this.consul = consul(Object.assign({}, config.consul, {
       promisify: true
     }));
@@ -25,16 +25,15 @@ module.exports = class Agent {
 
   start() {
     logger.debug('Starting agent');
-    return this.subscribeForFlow().then(() => {
-      logger.info('Agent started');
-    }).catch(this.errorLogger);
+    this.subscribeForFlow();
+    logger.info('Agent started on', this.flowPath);
   }
 
   subscribeForFlow() {
     this.flowsWatch = this.consul.watch({
       method: this.consul.kv.get,
       options: {
-        key: `${this.agentKey}/flow`
+        key: `${this.flowPath}/data`
       }
     });
     this.flowsWatch.on('change', this.handleFlowUpdated.bind(this));
@@ -52,6 +51,10 @@ module.exports = class Agent {
   }
 
   handleFlowUpdated(response) {
+    if (!response) {
+      logger.info('No flow data found, just waiting');
+      return;
+    }
     logger.info('Received flow update, reconciling');
     JsonUtils.unpack(response.Value).then(flow => (
       this.manager.updateFlow(flow)

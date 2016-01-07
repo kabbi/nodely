@@ -41,6 +41,7 @@ switch (config._[0]) {
   }
   case 'config': {
     console.log(JSON.stringify(config, null, 2));
+    logger.info({ config }, 'Current configuration:');
     break;
   }
   default: {

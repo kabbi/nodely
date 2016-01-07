@@ -18,14 +18,13 @@ module.exports = class Manager {
     this.consul = agent.consul;
     this.nodeFactory = new NodeFactory();
     this.linkFactory = new LinkFactory();
-    this.notifyStatus('waiting');
   }
 
   notifyStatus(status, error) {
     return JsonUtils.pack({
       status, error
     }).then(value => (
-      this.consul.kv.set(`${this.agent.agentKey}/flow/status`, value)
+      this.consul.kv.set(`${this.agent.flowPath}/status`, value)
     ));
   }
 

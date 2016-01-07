@@ -11,6 +11,6 @@ module.exports = bunyan.createLogger({
     stream: process.stdout
   }, {
     level: 'debug',
-    stream: fs.createWriteStream('debug.log')
+    stream: fs.createWriteStream(`${config.dataDir}/debug.log`)
   }]
 });

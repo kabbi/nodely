@@ -1,5 +1,5 @@
 # Flow owner id here after a colon
-job "flow:0000000-0000-0000-0000-000000000000" {
+job "flow:demo-flow" {
 
 	# Specify region and datacenter
 	region = "dev"
@@ -23,14 +23,14 @@ job "flow:0000000-0000-0000-0000-000000000000" {
 
 	# Main job configuration
 	meta {
-		flow = "0000000-0000-0000-0000-000000000000"
+		flow_id = "demo-flow"
 		# This is currently the management token, must be a limited one
 		consul_token = "KePCPQEnPLQw5GvAfc2LsvtlP4"
 	}
 
 	# Create a 'cache' group. Each task in the group will be
 	# scheduled onto the same machine.
-	group "flow" {
+	group "flows" {
 		# Run exactly one instance of this group
 		count = 1
 
@@ -50,23 +50,23 @@ job "flow:0000000-0000-0000-0000-000000000000" {
 			# Use priveledged executor to run a task
 			driver = "docker"
 
-			# Configure Docker driver with the image
+			# Configure executor
 			config {
-				command = "/usr/bin/node"
-				arguments = "/vagrant/index.js agent"
+				image = "kabbi/nodely-agent"
 			}
 
 			service {
-				name = "flow:0000000-0000-0000-0000-000000000000"
+				name = "flow:demo-flow"
 				tags = ["agent", "flow"]
 				# We can inject port config here
 				# port = "db"
-				check {
-					name = "alive"
-					type = "tcp"
-					interval = "10s"
-					timeout = "2s"
-				}
+				# Optionally include check data
+				# check {
+				# 	name = "alive"
+				# 	type = "tcp"
+				# 	interval = "10s"
+				# 	timeout = "2s"
+				# }
 			}
 
 			# We must specify the resources required for

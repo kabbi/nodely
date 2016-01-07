@@ -1,11 +1,7 @@
 {
-  "name": "dev0",
+  "flowId": "demo-flow",
   "consul": {
-    "port": "8501"
-  },
-  "timing": {
-    "agentSessionTtl": "10s",
-    "agentLockDelay": "1s"
-  },
-  "noManager": true
+    "host": "192.168.140.42",
+    "token": "KePCPQEnPLQw5GvAfc2LsvtlP4"
+  }
 }
