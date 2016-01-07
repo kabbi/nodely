@@ -5,8 +5,9 @@ module.exports = require('rc')('nodely', {
   // Agent version, currently parced
   // directly from package.json file
   version: null,
-  // Consul http access details
+  // Consul http access details and credentials
   consul: {
+    token: null,
     address: 'localhost',
     port: 8500,
     secure: false,

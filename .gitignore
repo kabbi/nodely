@@ -28,8 +28,8 @@ node_modules
 
 # Nodely project-specific files
 
-# Dev consul data dir
-data
+# Vagrant files
+.vagrant
 
 # Debug log (temporary item, consider removing)
 debug.log

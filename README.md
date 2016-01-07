@@ -18,21 +18,11 @@ git clone https://github.com/kabbi/nodely.git
 cd nodely
 npm install
 
-# We need some consul running
-# Skip and configure your own in .nodelyrc if you want
-npm run consul:start
+# We need lots of tools running, and all of them are here:
+vagrant up
 
-# Deploy some test flow (again, fix the url for your own consul)
-curl -X PUT -T scripts/demo-flow.json http://localhost:8501/v1/kv/nodely/agents/dev0/flow
-
-# Run some agents
-npm run agent
-
-# See debug logs with
-tail -f debug.log | ./node_modules/.bin/bunyan -o short
-
-# You can see consul ui and browse key-value storage at:
-# http://localhost:8501/
+# Now you can deploy some flow config to consul, run nomad job
+# and see the output. Sorry, no instructions right now
 ```
 
 ## TODO

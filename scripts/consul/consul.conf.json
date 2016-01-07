@@ -1,0 +1,13 @@
+{
+  "datacenter": "nodely",
+  "data_dir": "/var/lib/consul",
+  "ui_dir": "/vagrant/scripts/consul/ui",
+  "acl_datacenter": "nodely",
+  "acl_default_policy": "allow",
+  "acl_master_token": "KePCPQEnPLQw5GvAfc2LsvtlP4",
+  "log_level": "INFO",
+  "node_name": "dev-nodely-node",
+  "server": true,
+  "bootstrap": true,
+  "disable_remote_exec": true
+}

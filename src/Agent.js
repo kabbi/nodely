@@ -24,50 +24,9 @@ module.exports = class Agent {
   }
 
   start() {
-    logger.info('Acquiring agent session');
-    // Verify the consul is reachable by reading root key
-    return this.consul.kv.get(config.baseKey).then(result => {
-      if (result === undefined) {
-        throw new Error('No nodely root key found, configuration needed');
-      }
-      return this.acquireAgentSession();
-    }).then(() => {
-      this.subscribeForFlow();
+    logger.debug('Starting agent');
+    return this.subscribeForFlow().then(() => {
       logger.info('Agent started');
-    }).catch(this.errorLogger);
-  }
-
-  getAgentSession() {
-    // TODO: put more things into agent session:
-    // - current device available resources
-    // - something else?
-    return {
-      name: config.name,
-      version: config.version
-    };
-  }
-
-  acquireAgentSession() {
-    return JsonUtils.pack(this.getAgentSession()).then(agentSession => {
-      this.lock = this.consul.lock({
-        key: this.agentKey,
-        value: agentSession,
-        session: {
-          ttl: config.timing.agentSessionTtl,
-          lockdelay: config.timing.agentLockDelay
-        }
-      });
-
-      return new Promise((resolve, reject) => {
-        this.lock.acquire();
-        // TODO: how to reject this promise properly?
-        this.lock.once('acquire', () => {
-          resolve();
-        });
-        this.lock.once('error', error => {
-          reject(error);
-        });
-      });
     }).catch(this.errorLogger);
   }
 
@@ -83,22 +42,12 @@ module.exports = class Agent {
   }
 
   destroy() {
-    logger.info('Destroying agent');
+    logger.debug('Destroying agent');
     if (this.flowsWatch) {
       this.flowsWatch.end();
     }
-    return this.manager.destroyFlow().then(() => (
-      this.releaseAgentSession()
-    )).then(() => {
+    return this.manager.destroyFlow().then(() => {
       logger.info('Agent destroyed');
-    });
-  }
-
-  releaseAgentSession() {
-    return new Promise(resolve => {
-      // TODO: how to wait for lock release?
-      this.lock.release();
-      resolve(null);
     });
   }
 
