@@ -12,7 +12,9 @@ module.exports = class LinkFactory {
       logger.error('Invalid link type specified');
       return Promise.reject(new Error('Only local nodes are supported right now'));
     }
-    inputStream.pipe(outputStream);
+    inputStream.pipe(outputStream, {
+      end: false
+    });
     return Promise.resolve(linkData);
   }
 };

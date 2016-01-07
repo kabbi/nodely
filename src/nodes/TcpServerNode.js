@@ -15,7 +15,9 @@ module.exports = class TcpServerNode extends Node {
 
     this.dataStream = invert();
     this.server = net.createServer(connection => {
-      connection.pipe(this.dataStream.other);
+      connection.pipe(this.dataStream.other, {
+        end: false
+      });
     }).listen(props.port);
   }
 
