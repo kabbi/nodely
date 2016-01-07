@@ -53,6 +53,7 @@ job "flow:demo-flow" {
 			# Configure executor
 			config {
 				image = "kabbi/nodely-agent"
+				network_mode = "host"
 			}
 
 			service {

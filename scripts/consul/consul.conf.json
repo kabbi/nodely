@@ -1,4 +1,7 @@
 {
+  "client_addr": "0.0.0.0",
+  "bind_addr": "0.0.0.0",
+  "advertise_addr": "192.168.140.42",
   "datacenter": "nodely",
   "data_dir": "/var/lib/consul",
   "ui_dir": "/vagrant/scripts/consul/ui",

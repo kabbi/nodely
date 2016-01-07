@@ -5,12 +5,11 @@ const config = require('./config');
 
 module.exports = bunyan.createLogger({
   name: config.logger.name,
-  level: 'error',
   streams: [{
-    level: 'error',
+    level: config.logger.level,
     stream: process.stdout
   }, {
     level: 'debug',
-    stream: fs.createWriteStream(`${config.dataDir}/debug.log`)
+    stream: fs.createWriteStream(`${config.dataDir}/${config.logger.file}`)
   }]
 });

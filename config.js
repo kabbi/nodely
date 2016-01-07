@@ -4,7 +4,7 @@ const config = module.exports = require('rc')('nodely', {
   version: null,
   // Consul http access details and credentials
   consul: {
-    token: null,
+    token: process.env['NOMAD_META_CONSUL_TOKEN'] || null,
     host: 'localhost',
     port: 8500,
     secure: false,
@@ -14,33 +14,18 @@ const config = module.exports = require('rc')('nodely', {
   baseKey: 'nodely',
   // Logging configuration
   logger: {
+    level: 'error',
     name: 'nodely',
     file: 'debug.log'
   },
   // Root directory to place runtime data
-  dataDir: '.',
+  dataDir: process.env['NOMAD_ALLOC_DIR'] || '.',
   // Flow id we are executing
-  flowId: null
+  flowId: process.env['NOMAD_META_FLOW_ID'] || null
 });
 
 const packageInfo = require('./package.json');
 config.version = packageInfo.version;
-
-// Play nice with nomad config scheme
-
-const allocDir = process.env['NOMAD_ALLOC_DIR'];
-if (allocDir) {
-  config.dataDir = allocDir;
-}
-
-const consulToken = process.env['NOMAD_META_CONSUL_TOKEN'];
-if (consulToken) {
-  config.consul.token = consulToken;
-}
-const flowId = process.env['NOMAD_META_FLOW_ID'];
-if (consulToken) {
-  config.flowId = flowId;
-}
 
 // TODO: validate the config and provide
 // some errors when mandatory values are
