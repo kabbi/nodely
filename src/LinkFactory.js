@@ -8,7 +8,7 @@ const logger = require('../logger').child({
 
 module.exports = class LinkFactory {
   createLink(inputStream, outputStream, linkData) {
-    if (linkData.type !== 'local') {
+    if (linkData.type && linkData.type !== 'local') {
       logger.error('Invalid link type specified');
       return Promise.reject(new Error('Only local nodes are supported right now'));
     }

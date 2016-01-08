@@ -21,6 +21,7 @@ module.exports = class Manager {
   }
 
   notifyStatus(status, error) {
+    logger.debug('Storing status update:', status, error);
     return JsonUtils.pack({
       status, error
     }).then(value => (
@@ -84,6 +85,7 @@ module.exports = class Manager {
   }
 
   createNode(nodeData) {
+    logger.debug('Creating node', nodeData.id);
     return this.nodeFactory.createNode(nodeData).then(node => {
       this.nodes[nodeData.id] = node;
       return node;
@@ -91,6 +93,7 @@ module.exports = class Manager {
   }
 
   destroyNode(nodeData) {
+    logger.debug('Destroying node', nodeData.id);
     return this.nodes[nodeData.id].destroy().then(() => {
       delete this.nodes[nodeData.id];
     });
@@ -114,12 +117,14 @@ module.exports = class Manager {
   }
 
   createLink(linkData) {
+    logger.debug('Creating link', linkData.id);
     return this.findLinkStreams(linkData).then(streams => (
       this.linkFactory.createLink(streams.from, streams.to, linkData)
     ));
   }
 
   destroyLink(linkData) {
+    logger.debug('Destroying link', linkData.id);
     return this.findLinkStreams(linkData).then(streams => {
       streams.from.unpipe(streams.to);
     });

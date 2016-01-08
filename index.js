@@ -6,6 +6,7 @@ const logger = require('./logger');
 // running instance
 
 logger.info('Starting nodely');
+logger.debug({ config }, 'Using configuration:');
 process.on('exit', () => {
   logger.info('Exiting nodely');
 });

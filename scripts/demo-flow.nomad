@@ -21,13 +21,6 @@ job "flow:demo-flow" {
 		max_parallel = 1
 	}
 
-	# Main job configuration
-	meta {
-		flow_id = "demo-flow"
-		# This is currently the management token, must be a limited one
-		consul_token = "KePCPQEnPLQw5GvAfc2LsvtlP4"
-	}
-
 	# Create a 'cache' group. Each task in the group will be
 	# scheduled onto the same machine.
 	group "flows" {
@@ -56,6 +49,13 @@ job "flow:demo-flow" {
 				network_mode = "host"
 			}
 
+			# Main job configuration
+			env {
+				nodely_flowId = "demo-flow"
+				nodely_consul__token = "KePCPQEnPLQw5GvAfc2LsvtlP4"
+			}
+
+			# Consul service definition
 			service {
 				name = "flow:demo-flow"
 				tags = ["agent", "flow"]

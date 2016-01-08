@@ -8,7 +8,12 @@ module.exports = class TimerNode extends Node {
   constructor(id, props) {
     super(id, props);
 
-    this.stream = from((size, next) => {
+    const options = {};
+    if (typeof this.props.data === 'object') {
+      options.objectMode = true;
+    }
+
+    this.stream = from(options, (size, next) => {
       setTimeout(() => {
         next(null, this.props.data);
       }, this.props.interval);

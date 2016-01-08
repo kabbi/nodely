@@ -13,13 +13,35 @@
     "id": "node2",
     "type": "timer@1.0.0",
     "props": {
-      "data": "Hello, world!\n"
+      "data": {"test": "Hello, world!\n"}
+    }
+  }, {
+    "id": "node3",
+    "type": "http-server@1.0.0",
+    "props": {
+      "port": 3000
+    }
+  }, {
+    "id": "node4",
+    "type": "json-stringify@1.0.0"
+  }, {
+    "id": "node5",
+    "type": "javascript@1.0.0",
+    "props": {
+      "code": "data = {url: data.request.url};"
     }
   }],
   "links": [{
     "id": "conn0",
-    "from": ["node2", "data"],
-    "to": ["node1", "stdout"],
-    "type": "local"
+    "from": ["node3", "request"],
+    "to": ["node5", "data"]
+  }, {
+    "id": "conn1",
+    "from": ["node5", "data"],
+    "to": ["node4", "objects"]
+  }, {
+    "id": "conn2",
+    "from": ["node4", "data"],
+    "to": ["node1", "stdout"]
   }]
 }
