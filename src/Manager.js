@@ -117,14 +117,18 @@ module.exports = class Manager {
   }
 
   createLink(linkData) {
-    logger.debug('Creating link', linkData.id);
+    logger.debug('Creating link', linkData.id,
+      `${linkData.from.join('@')} -> ${linkData.to.join('@')}`
+    );
     return this.findLinkStreams(linkData).then(streams => (
       this.linkFactory.createLink(streams.from, streams.to, linkData)
     ));
   }
 
   destroyLink(linkData) {
-    logger.debug('Destroying link', linkData.id);
+    logger.debug('Destroying link', linkData.id,
+      `${linkData.from.join('@')} x-> ${linkData.to.join('@')}`
+    );
     return this.findLinkStreams(linkData).then(streams => {
       streams.from.unpipe(streams.to);
     });

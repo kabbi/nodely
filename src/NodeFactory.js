@@ -4,21 +4,34 @@ const logger = require('../logger').child({
   component: 'NodeFactory'
 });
 
-const localNodes = require('./nodes');
-
-// TODO:
-// - local (internal) nodes
-// - local npm nodes
-// - remore npm nodes (install those)
-// - pluggable node factories
+const localPackage = require('./nodes');
+const NpmUtils = require('./utils/Npm');
 
 module.exports = class NodeFactory {
+  constructor(npmOptions) {
+    this.npmOptions = npmOptions;
+    this.npmConfigured = false;
+  }
+
   createNode(nodeData) {
-    const Node = localNodes[nodeData.type];
-    if (!Node) {
-      logger.error('Could not find node for type', nodeData.type);
-      return Promise.reject(new Error('Node type is not supported'));
+    const packageName = nodeData.package || 'local';
+    if (packageName === 'local') {
+      logger.debug('Looking up the node in local package:', nodeData.type);
+      return localPackage.createNode(nodeData);
     }
-    return Promise.resolve(new Node(nodeData.id, nodeData.props));
+
+    let configureNpm = Promise.resolve();
+    if (!this.npmConfigured) {
+      configureNpm = NpmUtils.loadConfig();
+    }
+
+    logger.debug('Installing npm package:', packageName);
+    return configureNpm.then(() => (
+      NpmUtils.installPackage(packageName)
+    )).then(() => {
+      logger.debug('Looking up node in installed package:', nodeData.type);
+      const factory = require(packageName);
+      return factory.createNode(nodeData);
+    });
   }
 };
