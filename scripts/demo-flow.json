@@ -1,47 +1,85 @@
 {
   "id": "demo-flow",
   "nodes": [{
-    "id": "node0",
-    "type": "tcp-server@1.0.0",
-    "props": {
-      "port": 20667
-    }
-  }, {
-    "id": "node1",
+    "id": "stdio-node",
     "type": "stdio@1.0.0"
   }, {
-    "id": "node2",
-    "type": "timer@1.0.0",
-    "props": {
-      "data": {"test": "Hello, world!\n"}
-    }
-  }, {
-    "id": "node3",
-    "type": "http-server@1.0.0",
-    "props": {
-      "port": 3000
-    }
-  }, {
-    "id": "node4",
+    "id": "stringify-node",
     "type": "json-stringify@1.0.0"
   }, {
-    "id": "node5",
+    "id": "apply-offset-code-node",
     "type": "javascript@1.0.0",
     "props": {
-      "code": "data = {url: data.request.url};"
+      "code": "data = {path: '/bot140586129:AAEyiM1gXE4ATsevU2nQlNMQMJUvw1DmwBo/getUpdates?timeout=10&offset=' + data};"
+    }
+  }, {
+    "id": "parse-response-code-node",
+    "type": "javascript@1.0.0",
+    "props": {
+      "code": "if (data.result && data.result.length) {data = {key: 'nextUpdateId', value: data.result[data.result.length - 1].update_id + 1};} else {data = {key: 'nextUpdateId'};}"
+    }
+  }, {
+    "id": "storage-node",
+    "type": "simple-storage@1.0.0",
+    "props": {
+      "nextUpdateId": 0
+    }
+  }, {
+    "id": "http-request-node",
+    "type": "https-request@1.0.0",
+    "props": {
+      "hostname": "api.telegram.org",
+      "headers": {
+        "User-Agent": "curl/7.43.0"
+      }
+    }
+  }, {
+    "id": "http-message-node",
+    "type": "https-request@1.0.0",
+    "props": {
+      "hostname": "api.telegram.org",
+      "headers": {
+        "User-Agent": "curl/7.43.0"
+      }
+    }
+  }, {
+    "id": "prepare-answer-code-node",
+    "type": "javascript@1.0.0",
+    "props": {
+      "code": "if (data.result.length) {var msg = data.result[0].message; var from = msg.from.id; var text = msg.text; data = {path: '/bot140586129:AAEyiM1gXE4ATsevU2nQlNMQMJUvw1DmwBo/sendMessage?chat_id=' + from + '&text=' + encodeURI('You typed: ' + text)};} else {data = null;}"
     }
   }],
   "links": [{
-    "id": "conn0",
-    "from": ["node3", "request"],
-    "to": ["node5", "data"]
+    "id": "conn-stdout",
+    "from": ["stringify-node", "data"],
+    "to": ["stdio-node", "stdout"]
   }, {
-    "id": "conn1",
-    "from": ["node5", "data"],
-    "to": ["node4", "objects"]
+    "id": "conn-set-index",
+    "from": ["storage-node", "value"],
+    "to": ["apply-offset-code-node", "data"]
   }, {
-    "id": "conn2",
-    "from": ["node4", "data"],
-    "to": ["node1", "stdout"]
+    "id": "conn-request",
+    "from": ["apply-offset-code-node", "data"],
+    "to": ["http-request-node", "request"]
+  }, {
+    "id": "conn-stringify-response",
+    "from": ["http-request-node", "response"],
+    "to": ["stringify-node", "objects"]
+  }, {
+    "id": "conn-process-update",
+    "from": ["http-request-node", "response"],
+    "to": ["parse-response-code-node", "data"]
+  }, {
+    "id": "conn-process-response",
+    "from": ["http-request-node", "response"],
+    "to": ["prepare-answer-code-node", "data"]
+  }, {
+    "id": "conn-send-answer",
+    "from": ["prepare-answer-code-node", "data"],
+    "to": ["http-message-node", "request"]
+  }, {
+    "id": "conn-store-index",
+    "from": ["parse-response-code-node", "data"],
+    "to": ["storage-node", "control"]
   }]
 }

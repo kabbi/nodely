@@ -1,5 +1,7 @@
 const localNodes = exports.nodes = {
+  'simple-storage@1.0.0': require('./SimpleStorageNode'),
   'json-stringify@1.0.0': require('./JsonStringifyNode'),
+  'https-request@1.0.0': require('./HttpsRequestNode'),
   'http-server@1.0.0': require('./HttpServerNode'),
   'javascript@1.0.0': require('./JavascriptNode'),
   'tcp-server@1.0.0': require('./TcpServerNode'),

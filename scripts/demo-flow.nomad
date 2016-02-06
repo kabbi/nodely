@@ -41,17 +41,17 @@ job "flow:demo-flow" {
 		# Define a task to run
 		task "flow-executor" {
 			# Use priveledged executor to run a task
-			driver = "docker"
+			driver = "raw_exec"
 
 			# Configure executor
 			config {
-				image = "kabbi/nodely-agent"
-				network_mode = "host"
+				command = "/usr/bin/node"
+				args = ["/vagrant/index.js", "agent"]
 			}
 
 			# Main job configuration
 			env {
-				nodely_flowId = "demo-flow"
+				nodely_flowId = "56b3921cb04aeee410d60aad"
 				nodely_consul__token = "KePCPQEnPLQw5GvAfc2LsvtlP4"
 			}
 

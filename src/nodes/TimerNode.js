@@ -33,7 +33,7 @@ module.exports = class TimerNode extends Node {
   }
 
   getOutputs() {
-    return [...super.getOutputs(), {
+    return [{
       id: 'data',
       stream: this.stream
     }];

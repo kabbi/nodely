@@ -12,7 +12,9 @@ module.exports = class JavascriptNode extends Node {
       // TODO: error handling
       const context = { data };
       this.script.runInNewContext(context);
-      next(null, context.data);
+      if (context.data) {
+        next(null, context.data);
+      }
     });
     this.script = new vm.Script(this.props.code, {
       filename: `node.${this.id}.js`

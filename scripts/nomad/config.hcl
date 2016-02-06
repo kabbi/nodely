@@ -24,5 +24,6 @@ client {
   options {
     # Don't do like that in production: make custom token for nomad
     "consul.token" = "KePCPQEnPLQw5GvAfc2LsvtlP4"
+    "driver.raw_exec.enable" = "1"
   }
 }
